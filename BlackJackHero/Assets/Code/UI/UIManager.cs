@@ -12,6 +12,8 @@ namespace BlackJackHero
     {
         [SerializeField]
         private TMP_Dropdown amountSelectorUI;
+        [SerializeField]
+        private TextMeshProUGUI betDisplay;
         int deckAmount = 4;
 
         public void OnDeckAmountSelected()
@@ -21,6 +23,10 @@ namespace BlackJackHero
         public void OnStartButtonPressed()
         {
             GM.Instance.StartGame(deckAmount);
+        }
+        public void OnPlaceBetPressed()
+        {
+            betDisplay.text = $"Current Bet: {GM.Instance.CurrentBet}";
         }
     }
 }

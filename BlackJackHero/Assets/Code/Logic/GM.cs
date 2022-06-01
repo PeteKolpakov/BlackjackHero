@@ -11,9 +11,6 @@ namespace BlackJackHero.Assets.Code.Logic
     public class GM : MonoBehaviour
     {
         [SerializeField]
-        private int count;
-
-        [SerializeField]
         private List<DeckDef_SO> decks = new List<DeckDef_SO>();
 
         public TheShoe shoe { get; private set; }
@@ -28,7 +25,15 @@ namespace BlackJackHero.Assets.Code.Logic
         [SerializeField]
         private Player player, dealer;
 
+        private int currentBet = 0;
+        public int CurrentBet { get { return currentBet; }  }
+
         // ------ //
+
+        public void PlaceBet()
+        {
+            player.PlaceBet();
+        }
 
         private void Awake()
         {
@@ -43,6 +48,8 @@ namespace BlackJackHero.Assets.Code.Logic
             dealer.FinishTurn();
 
             DealToBoth(2);
+
+            player.Init();
             dealer.Init();
         }
 
@@ -52,6 +59,7 @@ namespace BlackJackHero.Assets.Code.Logic
 
             DealToBoth(2);
             dealer.Init();
+            player.Init();
         }
 
         private void DealToBoth(int count)
@@ -65,7 +73,15 @@ namespace BlackJackHero.Assets.Code.Logic
 
         public void Hit(Hand target)
         {
-            target.RecieveCard(shoe.PullNextCard(cardPrefab, target.CardHolder));
+            Card card; 
+            if (shoe.PullNextCard(cardPrefab, target.CardHolder, out card))
+            {
+                target.RecieveCard(card);
+            }
+            else
+            {
+                Debug.Log("No Cards Left To Hit");
+            }
         }
 
         private void FillShoe(int deckCount)
@@ -87,6 +103,7 @@ namespace BlackJackHero.Assets.Code.Logic
                     shoe.LoadCard(def);
                 } 
             }
+            shoe.Init();
             print("Shoe Filled WIth Cards X" + shoe.GetCount());
         }
 

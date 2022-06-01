@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using TMPro;
+using Sirenix.OdinInspector;
 
 namespace BlackJackHero
 {
@@ -15,6 +17,10 @@ namespace BlackJackHero
 
         private Vector2 cardDimentions = new Vector2(1, 2);
 
+        [SerializeField, Required]
+        private TextMeshProUGUI shoeFillDisplay;
+        private int startSize;
+
         public Card SpawnCard(CardDef_SO def, GameObject prefab, Transform containerObject)
         {
             GameObject spawnedCard = GameObject.Instantiate(prefab, containerObject);
@@ -24,29 +30,54 @@ namespace BlackJackHero
             //cardsInPlay.Add(card);
             return card;
         }
+        private void UpdateShoeFillDisplay()
+        {
+            shoeFillDisplay.text = $"Shoe {cardsInPlay.Count}/{startSize}";
+        }
+        public void ShuffleIfNeeded()
+        {
+            if (cardsInPlay.Count <= 1)
+            {
+                if (burnDeck.Count <= 0)
+                {
+                    Debug.LogWarning("No Cards Left In Burn Deck To Shuffle Into Shoe");
+                    return;
+                }
+
+                var tempDeck = Utils.riffleShuffle(burnDeck, 4);
+                foreach (var card in tempDeck)
+                {
+                    LoadCard(card);
+                }
+
+                burnDeck.Clear();
+                Debug.Log("Shoe Shuffled!");
+            }
+        }
 
         public void LoadCard(CardDef_SO target)
         {
             cardsInPlay.Enqueue(target);
+            UpdateShoeFillDisplay();
         }
 
-        public Card PullNextCard(GameObject prefab, Transform containerObject)
+        public bool PullNextCard(GameObject prefab, Transform containerObject, out Card pulledCard)
         {
+            ShuffleIfNeeded();
             if (cardsInPlay.Count <= 0)
             {
                 Debug.LogWarning("Shoe Empty");
-                return null;
+                pulledCard = null;
+                return false;
             }
             Card spawnedCard = SpawnCard(cardsInPlay.Dequeue(), prefab, containerObject);
-            return spawnedCard;
+            pulledCard = spawnedCard;
+            UpdateShoeFillDisplay();
+            return true;
         }
 
         public void ResetShoe()
         {
-            //foreach (var card in cardsInPlay)
-            //{
-            //    GameObject.Destroy(card.gameObject);
-            //}
             cardsInPlay.Clear();
             Debug.Log($"Shoe Clear, Count = {cardsInPlay.Count}");
         }
@@ -70,6 +101,10 @@ namespace BlackJackHero
             {
                 cardsInPlay.Enqueue(card);
             }
+        }
+        public void Init()
+        {
+            startSize = cardsInPlay.Count;
         }
     }
 }

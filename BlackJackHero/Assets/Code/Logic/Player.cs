@@ -20,7 +20,11 @@ namespace BlackJackHero
         public int HP => health;
 
         [SerializeField]
-        private TextMeshProUGUI healthDisplay;
+        private TextMeshProUGUI healthDisplay, goldDisplay;
+
+        [SerializeField]
+        private int gold = 10;
+        public int Gold => gold;
 
         public bool CheckIfBust()
         {
@@ -31,9 +35,25 @@ namespace BlackJackHero
             return true;
         }
 
+        public void PlaceBet()
+        {
+            if (gold > 0)
+            {
+                gold--;
+                UpdateGoldDisplay();
+            }
+            else
+            {
+                health--;
+                UpdateHealthDisplay();
+            }
+        }
+
         public virtual void Init()
         {
             UpdateHealthDisplay();
+            UpdateGoldDisplay();
+
             if (CheckIfBust())
             {
                 print(gameObject.name + " Is Bust");
@@ -43,6 +63,10 @@ namespace BlackJackHero
         private void UpdateHealthDisplay()
         {
             healthDisplay.text = "Lives: " + HP;
+        }        
+        private void UpdateGoldDisplay()
+        {
+            goldDisplay.text = "Gold: " + Gold;
         }
 
         public void FinishTurn()
