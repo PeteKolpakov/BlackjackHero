@@ -8,7 +8,7 @@ namespace BlackJackHero
     [RequireComponent(typeof(Image))]
     public class Card : MonoBehaviour
     {
-        [Required, SerializeField, InlineEditor, ReadOnly]
+        [Required, SerializeField, InlineEditor, HideInPrefabInstances]
         private CardDef_SO myDef;
 
         private Image mySprite;

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27783ef8f8d9dcc4f98b5b34ef7d9fd1, type: 3}
   m_Name: OnlySpades
   m_EditorClassIdentifier: 
+  Description: A SINGLE suit of spades.
   cards:
   - {fileID: 11400000, guid: 5cb2388b6e05caf419ff698fc1efe8e6, type: 2}
   - {fileID: 11400000, guid: 2b820a8c0e1c7b84f96a1f9a96d31519, type: 2}

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77dbaeb67a69e684c9a2afe8a845789d, type: 3}
+  m_Name: Def_C_K
+  m_EditorClassIdentifier: 
+  cardName: 
+  mySprite: {fileID: -1948015355, guid: 45ecb28ed793fc1449a058cc70b690bb, type: 3}
+  isEditable: 0
+  trait: {fileID: 0}
+  mySuit: 2
+  myVal: 13

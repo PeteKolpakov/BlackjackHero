@@ -9,7 +9,7 @@ namespace BlackJackHero
 {
     public class Player : MonoBehaviour
     {
-        [SerializeField, Required]
+        [SerializeField, Required, HideInPrefabInstances]
         private Hand hand;
         public Hand MyHand { get { return hand; } }
 
@@ -19,7 +19,7 @@ namespace BlackJackHero
         private int health = 3;
         public int HP => health;
 
-        [SerializeField]
+        [SerializeField, HideInPrefabInstances]
         private TextMeshProUGUI healthDisplay, goldDisplay;
 
         [SerializeField]
