@@ -34,19 +34,35 @@ namespace BlackJackHero
             }
             return true;
         }
-
-        public void PlaceBet()
+        public bool CanBet()
+        {
+            if (gold > 0 || health > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public void TryPlaceBet()
         {
             if (gold > 0)
             {
                 gold--;
                 UpdateGoldDisplay();
+
             }
-            else
+            else if (health > 0)
             {
                 health--;
                 UpdateHealthDisplay();
             }
+        }
+
+        public void RecievePayout(int amount)
+        {
+            gold += amount;
         }
 
         public virtual void Init()

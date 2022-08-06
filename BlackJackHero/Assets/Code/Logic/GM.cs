@@ -18,6 +18,9 @@ namespace BlackJackHero.Assets.Code.Logic
         [SerializeField]
         private GameObject cardPrefab;
 
+        [SerializeField]
+        private UIManager uiManager;
+
         private static GM instance;
 
         public static GM Instance { get { return instance; } }
@@ -30,10 +33,17 @@ namespace BlackJackHero.Assets.Code.Logic
 
         // ------ //
 
-        public void PlaceBet()
-        {
-            player.PlaceBet();
-        }
+        //public void PlaceBet()
+        //{
+        //    if (player.TryPlaceBet())
+        //    {
+        //        currentBet++;
+        //    }
+        //    if (!player.TryPlaceBet())
+        //    {
+        //        // player dies
+        //    }
+        //}
 
         private void Awake()
         {
@@ -44,13 +54,48 @@ namespace BlackJackHero.Assets.Code.Logic
 
         public void UpdateTurn()
         {
-            player.FinishTurn();
-            dealer.FinishTurn();
+            // if player hasnt paid in then dealer cant loose lives and instead all hand is discarded
+            if (currentBet > 0)
+            {
+                ResolveBets();
+
+                player.FinishTurn();
+                dealer.FinishTurn();
+            }
+            else
+            {
+                player.MyHand.DiscardAll();
+                dealer.MyHand.DiscardAll();
+            }
+
+            currentBet = 0;
+            uiManager.UpdateBetDisplay();
 
             DealToBoth(2);
 
             player.Init();
             dealer.Init();
+        }
+
+        private void ResolveBets()
+        {
+            // if dealer busts and player wins hand
+            if (dealer.CheckIfBust() && !player.CheckIfBust())
+            {
+                int payout = currentBet * 2;
+                player.RecievePayout(payout);
+            }
+            // if both player and dealer bust
+            if (!dealer.CheckIfBust() && !player.CheckIfBust())
+            {
+                return;
+            }
+            // if player busts and dealer wins hand
+            if (dealer.CheckIfBust() && !player.CheckIfBust())
+            {
+                int payout = currentBet;
+                dealer.RecievePayout(payout);
+            }
         }
 
         public void StartGame(int deckCount)
@@ -73,6 +118,13 @@ namespace BlackJackHero.Assets.Code.Logic
 
         public void Hit(Hand target)
         {
+            //if (target == player && currentBet == 0)
+            //{
+            //    if (!player.TryPlaceBet())
+            //    {
+            //        return;
+            //    }
+            //}
             Card card; 
             if (shoe.PullNextCard(cardPrefab, target.CardHolder, out card))
             {

@@ -3040,6 +3040,7 @@ MonoBehaviour:
   decks:
   - {fileID: 11400000, guid: d91e1ac4fffe2e445abc0c258a46a117, type: 2}
   cardPrefab: {fileID: 5714592141579996102, guid: 199e137123676784ebc4f222a6013dd7, type: 3}
+  uiManager: {fileID: 1837067686}
   player: {fileID: 1000502143}
   dealer: {fileID: 1948500489}
 --- !u!4 &1837067684

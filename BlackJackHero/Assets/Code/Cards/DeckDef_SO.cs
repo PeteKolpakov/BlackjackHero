@@ -9,6 +9,8 @@ namespace BlackJackHero
     [CreateAssetMenu(menuName = "Custom Objects/Deck Definition")]
     public class DeckDef_SO : ScriptableObject
     {
+        public string Name;
+
         [TextArea]
         public String Description;
 

@@ -26,7 +26,11 @@ namespace BlackJackHero
         }
         public void OnPlaceBetPressed()
         {
-            GM.Instance.PlaceBet();
+            //GM.Instance.PlaceBet();
+            betDisplay.text = $"Current Bet: {GM.Instance.CurrentBet}";
+        }
+        public void UpdateBetDisplay()
+        {
             betDisplay.text = $"Current Bet: {GM.Instance.CurrentBet}";
         }
         public void Init()
