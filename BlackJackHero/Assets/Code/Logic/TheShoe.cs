@@ -17,8 +17,8 @@ namespace BlackJackHero
 
         private Vector2 cardDimentions = new Vector2(1, 2);
 
-        [SerializeField, Required]
-        private TextMeshProUGUI shoeFillDisplay;
+        //[SerializeField, Required]
+        //private TextMeshProUGUI shoeFillDisplay;
         private int startSize;
 
         public Card SpawnCard(CardDef_SO def, GameObject prefab, Transform containerObject)
@@ -30,10 +30,10 @@ namespace BlackJackHero
             //cardsInPlay.Add(card);
             return card;
         }
-        private void UpdateShoeFillDisplay()
-        {
-            shoeFillDisplay.text = $"Shoe {cardsInPlay.Count}/{startSize}";
-        }
+        //private void UpdateShoeFillDisplay()
+        //{
+        //    shoeFillDisplay.text = $"Shoe {cardsInPlay.Count}/{startSize}";
+        //}
         public void ShuffleIfNeeded()
         {
             if (cardsInPlay.Count <= 1)
@@ -58,7 +58,7 @@ namespace BlackJackHero
         public void LoadCard(CardDef_SO target)
         {
             cardsInPlay.Enqueue(target);
-            UpdateShoeFillDisplay();
+            //UpdateShoeFillDisplay();
         }
 
         public bool PullNextCard(GameObject prefab, Transform containerObject, out Card pulledCard)
@@ -72,7 +72,7 @@ namespace BlackJackHero
             }
             Card spawnedCard = SpawnCard(cardsInPlay.Dequeue(), prefab, containerObject);
             pulledCard = spawnedCard;
-            UpdateShoeFillDisplay();
+            //UpdateShoeFillDisplay();
             return true;
         }
 

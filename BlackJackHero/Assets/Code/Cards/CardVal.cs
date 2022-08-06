@@ -8,6 +8,7 @@ namespace BlackJackHero.Assets.Code.Cards
 {
     public enum CardVal
     {
+        NULL  = 0,
         Ace   = 1,
         Two   = 2,
         Three = 3,

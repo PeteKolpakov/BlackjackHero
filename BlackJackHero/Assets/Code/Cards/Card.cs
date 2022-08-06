@@ -13,18 +13,12 @@ namespace BlackJackHero
 
         private Image mySprite;
 
-        public Sprite Sprite { get { return myDef.Sprite; } }
-
-        public Suit Suit { get { return myDef.Suit; } }
-
         public CardVal Val { get { return myDef.Val; } }
 
         public void SetDef(CardDef_SO target)
         {
             myDef = target;
-            UpdateObjectName();
             mySprite = GetComponent<Image>();
-            mySprite.sprite = Sprite;
         }
 
         public CardDef_SO GetDef()
@@ -32,15 +26,8 @@ namespace BlackJackHero
             return myDef;
         }
 
-        private void OnValidate()
-        {
-            UpdateObjectName();
-        }
 
-        private void UpdateObjectName()
-        {
-            if (myDef != null) gameObject.name = $"C_{Suit}_{Val}";
-            else gameObject.name = "C_Unassigned";
-        }
+
+
     }
 }
