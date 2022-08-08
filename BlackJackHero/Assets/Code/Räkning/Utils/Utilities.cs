@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Random = System.Random;
 
-namespace BlackJackHero.Assets.Code.Räkning.Utils
-{
-    class Utils
+    class Utilities
     {
         private static Random rand = new Random();
 
@@ -113,5 +111,5 @@ namespace BlackJackHero.Assets.Code.Räkning.Utils
             }
         }
     }
-}
+
 

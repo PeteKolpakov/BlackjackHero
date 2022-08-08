@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using BlackJackHero.Assets.Code.Cards;
-using BlackJackHero.Assets.Code.Räkning.Managers;
+using BlackJackHero.Assets.Code.Räkning;
 
 namespace BlackJackHero
 {
@@ -22,12 +22,10 @@ namespace BlackJackHero
             D_PayerSum, 
             D_OpponentSum,
             D_BurnCount,
-            D_DeckCount;
+            D_DeckCount,
+            D_PlayerScore,
+            D_OpponentScore;
 
-        [SerializeField]
-        private ProgressBar 
-            playerScore, 
-            opponentScore;
 
         [SerializeField]
         private GameObject
@@ -122,20 +120,20 @@ namespace BlackJackHero
                     break;
             }
         }
-        public void ResetProgressBarValue()
+        public void ResetScore()
         {
-            playerScore.Current = 0;
-            opponentScore.Current = 0;
+            D_PlayerScore.text = " ";
+            D_OpponentScore.text = " ";
         }
         public void SetProgressBarValue(bool isPlayer, int target)
         {
             if (isPlayer)
             {
-                playerScore.Current = target;
+                D_PlayerScore.text = target.ToString();
             }
             else
             {
-                opponentScore.Current = target;
+                D_OpponentScore.text = target.ToString();
             }
         }
         public void EnablePopup(bool isWin, bool setActive)
@@ -153,7 +151,7 @@ namespace BlackJackHero
         {
             D_Deck.SetModDisplay(targetVal, target);
         }
-        public void SetCountDisplay(CardVal targetVal, string target)
+        public void SetDeckCountDisplay(CardVal targetVal, string target)
         {
             D_Deck.SetCountDisplay(targetVal, target);
         }

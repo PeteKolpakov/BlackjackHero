@@ -11,7 +11,15 @@ namespace BlackJackHero
 {
     [RequireComponent(typeof(DisplayHandler))]
     public class GameLogicHandler : MonoBehaviour
-    {       
+    {
+        public string Rules =
+    "Rakning is a simple game about getting the high score before someone's deck runs out." +
+    "You pull cards out to try get the highest combination, then press the turn button." +
+    "You can burn cards by clicking on them twice per turn, or hold a card for later use." +
+    "Playing a held card will burn the card currently in the position the hold card replaces." +
+    "After every match you will be able to add modifiers to your cards, these activate when your turn ends." +
+    "First your modifiers are applied, then your opponents.";
+
         private CardData
             p1,
             p2,
@@ -29,7 +37,6 @@ namespace BlackJackHero
         private int holdsAvailable = 0;
         private int holdHitsAvailable = 0;
 
-        private int matchScoreGoal = 100;
         private int playerScore = 0;
         private int opponentScore = 0;
 
@@ -43,7 +50,10 @@ namespace BlackJackHero
             p_Deck = new Deck();
             o_Deck = new Deck();
 
-            dh.ResetProgressBarValue();
+            p_Deck.GiveDeck(starterDeck);
+            o_Deck.GiveDeck(starterDeck);
+
+            dh.ResetScore();
         }
         public void  StartGame()
         {
@@ -64,11 +74,12 @@ namespace BlackJackHero
             playerScore = 0;
             opponentScore = 0;
 
-            dh.ResetProgressBarValue();
+            dh.ResetScore();
 
             // 2 - Load Decks
-            p_Deck.initDeck(starterDeck);
-            o_Deck.initDeck(starterDeck);
+
+            p_Deck.initDeck();
+            o_Deck.initDeck();
 
             // 3 - Play Turn
 
@@ -102,18 +113,6 @@ namespace BlackJackHero
             dh.SetProgressBarValue(true,  playerScore);
             dh.SetProgressBarValue(false, opponentScore);
 
-            // Check For Win
-            if (CheckForWin(opponentScore))  // check opponent first?
-            {
-                print("Opponent Wins!!");
-                HandleWin(false);
-            }
-            if (CheckForWin(playerScore))
-            {
-                print("Player Wins!!");
-                HandleWin(true);
-            }
-
             // Deal to player and opponent
             DealToAll();
             DebugState();
@@ -129,8 +128,8 @@ namespace BlackJackHero
         private void DebugState()
         {
             print(
-                $"Match Initiated: player deck has {p_Deck.CardsCurrent}/{p_Deck.CardsTotal} and {p_Deck.BurnDeckCurrent} burnt" +
-                                 $"opponent Deck has {o_Deck.CardsCurrent}/{o_Deck.CardsTotal} and {o_Deck.BurnDeckCurrent} burnt" +
+                $"Match Initiated: player deck has {p_Deck.CardsCurrent} " +
+                                 $"opponent Deck has {o_Deck.CardsCurrent} " +
                 $"p1 = {p1.Val}, p2 = {p2.Val}, ph = {ph.Val} " +
                 $"o1 = {o2.Val}, o2 = {o2.Val}"
                 );
@@ -139,13 +138,25 @@ namespace BlackJackHero
         {
 
             DiscardPosition(TargetCardPos.P1);
-            p1 = p_Deck.PullNextCard();
+            if (!p_Deck.PullNextCard(out p1))
+            {
+                HandleWin(CheckForWin());
+            }
             DiscardPosition(TargetCardPos.P2);
-            p2 = p_Deck.PullNextCard();
+            if (!p_Deck.PullNextCard(out p2))
+            {
+                HandleWin(CheckForWin());
+            }
             DiscardPosition(TargetCardPos.O1);
-            o1 = o_Deck.PullNextCard();
+            if (!o_Deck.PullNextCard(out o1))
+            {
+                HandleWin(CheckForWin());
+            }
             DiscardPosition(TargetCardPos.O2);
-            o2 = o_Deck.PullNextCard();
+            if (!o_Deck.PullNextCard(out o2))
+            {
+                HandleWin(CheckForWin());
+            }
             UpdateDisplays();
         }
         public void  BurnPosition(bool isLeftPos)
@@ -251,32 +262,27 @@ namespace BlackJackHero
             switch (target)
             {
                 case TargetCardPos.P1:
-                    p_Deck.AddToDiscardDeck(p1);
-                    p1 = p_Deck.PullNextCard();
+                    p_Deck.PullNextCard(out p1);
                     dh.SetCardVal(target, p1.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.P2:
-                    p_Deck.AddToDiscardDeck(p2);
-                    p2 = p_Deck.PullNextCard();
+                    p_Deck.PullNextCard(out p2);
                     dh.SetCardVal(target, p2.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.PH:
-                    p_Deck.AddToDiscardDeck(ph);
-                    ph = p_Deck.PullNextCard();
+                    p_Deck.PullNextCard(out ph);
                     dh.SetCardVal(target, ph.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O1:
-                    p_Deck.AddToDiscardDeck(o1);
-                    o1 = o_Deck.PullNextCard();
+                    o_Deck.PullNextCard(out o1);
                     dh.SetCardVal(target, o1.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O2:
-                    p_Deck.AddToDiscardDeck(o2);
-                    o2 = o_Deck.PullNextCard();
+                    o_Deck.PullNextCard(out o2);
                     dh.SetCardVal(target, o2.Val);
                     UpdateDisplays();
                     break;
@@ -284,33 +290,31 @@ namespace BlackJackHero
         }
         private void DiscardPosition(TargetCardPos target)
         {
+            CardData nullCard = new CardData();
             switch (target)
             {
                 case TargetCardPos.P1:
-                    p_Deck.AddToDiscardDeck(p1);
+                    p1 = nullCard;
                     dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.P2:
-                    p_Deck.AddToDiscardDeck(p2);
-                    p2 = p_Deck.PullNextCard();
+                    p2 = nullCard;
                     dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.PH:
-                    p_Deck.AddToDiscardDeck(ph);
+                    ph = nullCard;
                     dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O1:
-                    p_Deck.AddToDiscardDeck(o1);
-                    o1 = o_Deck.PullNextCard();
+                    o1 = nullCard;
                     dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O2:
-                    p_Deck.AddToDiscardDeck(o2);
-                    o2 = o_Deck.PullNextCard();
+                    o2 = nullCard;
                     dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
@@ -327,11 +331,17 @@ namespace BlackJackHero
 
             dh.SetDisplayText(TargetDisplay.D_PayerSum, GetPlayerSum().ToString());
             dh.SetDisplayText(TargetDisplay.D_BurnCount, burnsAvailable.ToString());
-            dh.SetDisplayText(TargetDisplay.D_DeckCount, $"{p_Deck.CardsCurrent}/{p_Deck.CardsCurrent + p_Deck.BurnDeckCurrent}");
+            dh.SetDisplayText(TargetDisplay.D_DeckCount, $"{p_Deck.CardsCurrent}");
             dh.SetDisplayText(TargetDisplay.D_OpponentSum, GetOpponentSum().ToString());
 
             dh.SetProgressBarValue(true,  playerScore);
             dh.SetProgressBarValue(false, opponentScore);
+
+            var cardcount = p_Deck.GetCardCountByValue();
+            for (int i = 0; i < 13; i++)
+            {
+                dh.SetDeckCountDisplay((CardVal)i+1, cardcount[i].ToString());
+            }
         }
         private int  GetPlayerSum()
         {
@@ -342,17 +352,18 @@ namespace BlackJackHero
         {
             return (int)o1.Val + (int)o2.Val;
         }
-        private bool CheckForWin(int score)
+        private bool CheckForWin()
         {
-            if (score >= matchScoreGoal)
+            if (playerScore > opponentScore)
             {
                 return true;
             }
-            else
+            else 
             {
                 return false;
             }
         }
+
         private void HandleWin(bool isPlayerWin)
         {
             dh.EnablePopup(isPlayerWin, true);

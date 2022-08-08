@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
-using UnityEditor.UI;
 using TMPro;
 using BlackJackHero.Assets.Code.Cards;
 
-namespace BlackJackHero.Assets.Code.Räkning.Managers
-{
+
+
     internal class DeckDisplayHandler : MonoBehaviour
     {
         [SerializeField]
@@ -33,4 +32,3 @@ namespace BlackJackHero.Assets.Code.Räkning.Managers
             modDisplays[index].text = target;
         }
     }
-}

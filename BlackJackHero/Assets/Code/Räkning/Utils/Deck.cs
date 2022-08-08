@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using BlackJackHero;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace BlackJackHero.Assets.Code.Räkning.Utils
-{
     internal class Deck
     {
-        private Queue<CardData> cards   = new Queue<CardData>();
-        private List<CardData> burnDeck = new List<CardData>();
+        private Queue<CardData> cardsInPlay = new Queue<CardData>();
 
         private int cardsTotal;
         public int CardsTotal { get => cardsTotal; }
@@ -15,94 +13,68 @@ namespace BlackJackHero.Assets.Code.Räkning.Utils
         private int cardsCurrent;
         public int CardsCurrent { get => cardsCurrent; }
 
-        private int burnDeckCurrent;
-        public int BurnDeckCurrent { get => burnDeckCurrent; }
+        private List<CardData> myDeck;
 
-        public void initDeck(DeckDef_SO target)
+        public void GiveDeck(DeckDef_SO target)
         {
-            cards.Clear();
-            burnDeck.Clear();
-
-            CardDef_SO[] targetCards = target.GetCards();
-            foreach (var card in targetCards)
+            myDeck = new List<CardData>();
+            foreach (var item in target.GetCards())
             {
-                CardData data = new CardData(card);
-                cards.Enqueue(data);
+                CardData card = new CardData(item);
+                myDeck.Add(card);
+            }
+        }
+
+        public void initDeck()
+        {
+            cardsInPlay.Clear();
+
+            foreach (var data in myDeck)
+            {
+                cardsInPlay.Enqueue(data);
             }
 
-            cardsTotal = cards.Count + burnDeck.Count;
+            cardsTotal = cardsInPlay.Count;
             cardsCurrent = cardsTotal;
-            burnDeckCurrent = burnDeck.Count;
 
             Shuffle();
         }
 
         private void UpdateCardCounts()
         {
-            cardsTotal = cards.Count + burnDeck.Count;
-            cardsCurrent = cards.Count;
-            burnDeckCurrent = burnDeck.Count;
-        }
-
-        public void ShuffleIfNeeded()
-        {
-            if (cards.Count < 1)
-            {
-                if (burnDeck.Count <= 0)
-                {
-                    Debug.LogWarning("No Cards Left In Burn Deck To Shuffle Into Shoe");
-                    return;
-                }
-                
-                var tempDeck = Utils.riffleShuffle(burnDeck, 6);
-                foreach (var card in tempDeck)
-                {
-                    LoadCard(card);
-                }
-
-                burnDeck.Clear();
-                Debug.Log("Shoe Shuffled!");
-            }
+            cardsTotal = cardsInPlay.Count;
+            cardsCurrent = cardsInPlay.Count;
         }
 
         public void LoadCard(CardData target)
         {
-            cards.Enqueue(target);
+            cardsInPlay.Enqueue(target);
             UpdateCardCounts();
         }
 
-        public CardData PullNextCard()
+        public bool PullNextCard(out CardData pulledCard)
         {
-            ShuffleIfNeeded();
-            if (cards.Count <= 0)
+
+            if (cardsInPlay.Count <= 0)
             {
                 Debug.LogWarning("Shoe Empty");
-                return null;
+                pulledCard = new CardData();
+                return false;
             }
-            CardData spawnedCard = cards.Dequeue();
+            pulledCard = cardsInPlay.Dequeue();
             UpdateCardCounts();
-            return spawnedCard;
-        }
-
-        public void AddToDiscardDeck(CardData target)
-        {
-            burnDeck.Add(target);
+            return true;
         }
 
         public void Shuffle()
         {
-            List<CardData> temp = cards.ToList();
-
-            foreach (var item in burnDeck)
-            {
-                temp.Add(item);
-            }
+            List<CardData> temp = cardsInPlay.ToList();
 
             temp = Utils.riffleShuffle(temp, 6);
-            cards.Clear();
+            cardsInPlay.Clear();
             foreach (var card in temp)
             {
-                cards.Enqueue(card);
+                cardsInPlay.Enqueue(card);
             }
         }
 
@@ -110,9 +82,12 @@ namespace BlackJackHero.Assets.Code.Räkning.Utils
         {
             int[] result = new int[13];
 
-
-
+            foreach (var item in myDeck)
+            {
+                int t = (int)item.Val;
+                result[t - 1] = t;
+            }
             return result;
         }
     }
-}
+
