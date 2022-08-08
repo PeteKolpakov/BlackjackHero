@@ -1,4 +1,5 @@
 using BlackJackHero.Assets.Code.Cards;
+using BlackJackHero.Assets.Code.Räkning.Mods;
 using BlackJackHero.Assets.Code.Räkning.Utils;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,11 +19,13 @@ namespace BlackJackHero
         public CardData(CardDef_SO target)
         {
             _myVal = target.Val;
+            _myMod = new NoMod();
         }        
         
         public CardData()
         {
             _myVal = CardVal.NULL;
+            _myMod = new NoMod();
         }
 
         public void SetMod(CardMod target)

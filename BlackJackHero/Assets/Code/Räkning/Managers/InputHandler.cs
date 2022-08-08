@@ -17,6 +17,11 @@ namespace BlackJackHero
             GM.HoldPosition(isLeftCard);
         }
 
+        public void OnHoldCardPressed(bool isleftButton)
+        {
+                GM.PlayHoldCard(isleftButton);
+        }
+
         public void OnBurnButtonPressed(bool isLeftCard)
         {
             GM.BurnPosition(isLeftCard);

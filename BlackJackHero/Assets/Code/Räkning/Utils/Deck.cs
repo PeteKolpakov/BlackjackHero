@@ -30,7 +30,7 @@ namespace BlackJackHero.Assets.Code.Räkning.Utils
                 cards.Enqueue(data);
             }
 
-            cardsTotal = cards.Count;
+            cardsTotal = cards.Count + burnDeck.Count;
             cardsCurrent = cardsTotal;
             burnDeckCurrent = burnDeck.Count;
 
@@ -54,7 +54,7 @@ namespace BlackJackHero.Assets.Code.Räkning.Utils
                     return;
                 }
                 
-                var tempDeck = Utils.riffleShuffle(burnDeck, 4);
+                var tempDeck = Utils.riffleShuffle(burnDeck, 6);
                 foreach (var card in tempDeck)
                 {
                     LoadCard(card);
@@ -92,12 +92,27 @@ namespace BlackJackHero.Assets.Code.Räkning.Utils
         public void Shuffle()
         {
             List<CardData> temp = cards.ToList();
-            temp = Utils.riffleShuffle(temp, 1);
+
+            foreach (var item in burnDeck)
+            {
+                temp.Add(item);
+            }
+
+            temp = Utils.riffleShuffle(temp, 6);
             cards.Clear();
             foreach (var card in temp)
             {
                 cards.Enqueue(card);
             }
+        }
+
+        public int[] GetCardCountByValue()
+        {
+            int[] result = new int[13];
+
+
+
+            return result;
         }
     }
 }

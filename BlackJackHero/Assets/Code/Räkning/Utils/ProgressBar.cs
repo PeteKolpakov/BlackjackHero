@@ -1,21 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BlackJackHero
 {
+    [ExecuteInEditMode()]
     public class ProgressBar : MonoBehaviour
     {
-        // Start is called before the first frame update
-        void Start()
+        public int Maximum;
+        public int Current;
+        public Image Mask;
+
+        private void Update()
         {
-        
+            GetCurrentFill();
         }
 
-        // Update is called once per frame
-        void Update()
+        private void GetCurrentFill()
         {
-        
+            float fillamount = (float)Current / (float)Maximum;
+            Mask.fillAmount = fillamount;
         }
     }
 }

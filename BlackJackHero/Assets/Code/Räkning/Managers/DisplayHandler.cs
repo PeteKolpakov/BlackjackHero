@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using BlackJackHero.Assets.Code.Cards;
+using BlackJackHero.Assets.Code.Räkning.Managers;
 
 namespace BlackJackHero
 {
@@ -23,21 +24,29 @@ namespace BlackJackHero
             D_BurnCount,
             D_DeckCount;
 
-        // Progress Bars For:
-        // Player
-        // Opponent
+        [SerializeField]
+        private ProgressBar 
+            playerScore, 
+            opponentScore;
+
+        [SerializeField]
+        private GameObject
+            WinPopup,
+            LossPopup;
+
+        [SerializeField]
+        private DeckDisplayHandler 
+            D_Deck;
 
         private void Awake()
         {
             Init();
         }
-
         public void Init()
         {
             InitCards();
             InitText();
         }
-
         private void InitCards()
         {
             C_PlayerCard_1.Init();
@@ -46,7 +55,6 @@ namespace BlackJackHero
             C_OpponentCard_1.Init();
             C_OpponentCard_2.Init();
         }
-
         private void InitText()
         {
             D_PayerSum.text = " ";
@@ -54,7 +62,6 @@ namespace BlackJackHero
             D_BurnCount.text = " ";
             D_DeckCount.text = " ";
         }
-
         public void SetDisplayText(TargetDisplay d, string target)
         {
             switch (d)
@@ -73,29 +80,28 @@ namespace BlackJackHero
                     break;
             }
         }
-
-        public void SetCardVal(TargetCardPos d, CardVal targetVal)
+        public void SetCardVal(TargetCardPos d, CardVal target)
         {
             switch (d)
             {
                 case TargetCardPos.P1:
-                    C_PlayerCard_1.SetValDisplay(targetVal); 
+                    C_PlayerCard_1.SetValDisplay(target); 
                     break;
                 case TargetCardPos.P2:
-                    C_PlayerCard_2.SetValDisplay(targetVal);
+                    C_PlayerCard_2.SetValDisplay(target);
                     break;
                 case TargetCardPos.PH:
-                    C_PlayerCard_Hold.SetValDisplay(targetVal);
+                    C_PlayerCard_Hold.SetValDisplay(target);
                     break;
                 case TargetCardPos.O1:
-                    C_OpponentCard_1.SetValDisplay(targetVal);
+                    C_OpponentCard_1.SetValDisplay(target);
                     break;
                 case TargetCardPos.O2:
-                    C_OpponentCard_2.SetValDisplay(targetVal);
+                    C_OpponentCard_2.SetValDisplay(target);
                     break;
             }
         }
-        public void SetCardVal(TargetCardPos d)
+        public void ResetCardVal(TargetCardPos d)
         {
             switch (d)
             {
@@ -116,7 +122,41 @@ namespace BlackJackHero
                     break;
             }
         }
-
+        public void ResetProgressBarValue()
+        {
+            playerScore.Current = 0;
+            opponentScore.Current = 0;
+        }
+        public void SetProgressBarValue(bool isPlayer, int target)
+        {
+            if (isPlayer)
+            {
+                playerScore.Current = target;
+            }
+            else
+            {
+                opponentScore.Current = target;
+            }
+        }
+        public void EnablePopup(bool isWin, bool setActive)
+        {
+            if (isWin)
+            {
+                WinPopup.SetActive(setActive);
+            }
+            else
+            {
+                LossPopup.SetActive(setActive);
+            }
+        }
+        public void SetModDisplay(CardVal targetVal, string target)
+        {
+            D_Deck.SetModDisplay(targetVal, target);
+        }
+        public void SetCountDisplay(CardVal targetVal, string target)
+        {
+            D_Deck.SetCountDisplay(targetVal, target);
+        }
         public enum TargetCardPos
         {
             P1,
@@ -125,7 +165,6 @@ namespace BlackJackHero
             O1,
             O2
         }
-
         public enum TargetDisplay
         {
             D_PayerSum,
@@ -133,6 +172,5 @@ namespace BlackJackHero
             D_BurnCount,
             D_DeckCount
         }
-
     }
 }

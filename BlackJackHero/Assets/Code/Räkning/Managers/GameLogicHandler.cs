@@ -21,12 +21,17 @@ namespace BlackJackHero
 
         private Deck
             p_Deck,
-            o_Deck;
+            o_Deck;        
 
-        private bool isMatechStarted = false;
+        private bool isMatchRunning = false;
 
         private int burnsAvailable = 0;
         private int holdsAvailable = 0;
+        private int holdHitsAvailable = 0;
+
+        private int matchScoreGoal = 100;
+        private int playerScore = 0;
+        private int opponentScore = 0;
 
         [SerializeField] private DeckDef_SO starterDeck;
 
@@ -37,10 +42,12 @@ namespace BlackJackHero
             dh = GetComponent<DisplayHandler>();
             p_Deck = new Deck();
             o_Deck = new Deck();
+
+            dh.ResetProgressBarValue();
         }
-        public void StartGame()
+        public void  StartGame()
         {
-            if (isMatechStarted)
+            if (isMatchRunning)
             {
                 print("Match Has Already Begun");
                 return;
@@ -54,6 +61,10 @@ namespace BlackJackHero
             o1 = new CardData();
             o2 = new CardData();
 
+            playerScore = 0;
+            opponentScore = 0;
+
+            dh.ResetProgressBarValue();
 
             // 2 - Load Decks
             p_Deck.initDeck(starterDeck);
@@ -63,52 +74,81 @@ namespace BlackJackHero
 
             DebugState();
 
-            isMatechStarted = true;
-        }
-        public void EndPlayerTurn()
-        {
-            // 1 - Deal to player and opponent
+            isMatchRunning = true;
+
+            // Deal to player and opponent
             DealToAll();
             DebugState();
 
-            // 2 - player can choose to burn / hold / or replace cards
-
-
-            // 3 - player completes their turn by pressing the turn button
-
-            // 4 - Opponent Card Mods Activate
-
-            // 5 - Player Card Mods Activate
-
-            // 6 - Sums Are Calculated
-
-            // 7 - Progress Bars Are Updated
-
-            // 8 - Turn Ends
+            // Turn Ends
             holdsAvailable = 1;
+            holdHitsAvailable = 1;
+            burnsAvailable = 2;
+            UpdateDisplays();
+        }
+        public void  EndPlayerTurn()
+        {
+            // player completes their turn by pressing the turn button
+
+            // Opponent Card Mods Activate
+
+            // Player Card Mods Activate
+
+            // Sums Are Calculated
+            playerScore   += GetPlayerSum();
+            opponentScore += GetOpponentSum();
+
+            // Progress Bars Are Updated
+            dh.SetProgressBarValue(true,  playerScore);
+            dh.SetProgressBarValue(false, opponentScore);
+
+            // Check For Win
+            if (CheckForWin(opponentScore))  // check opponent first?
+            {
+                print("Opponent Wins!!");
+                HandleWin(false);
+            }
+            if (CheckForWin(playerScore))
+            {
+                print("Player Wins!!");
+                HandleWin(true);
+            }
+
+            // Deal to player and opponent
+            DealToAll();
+            DebugState();
+
+            // Turn Ends
+            holdsAvailable = 1;
+            holdHitsAvailable = 1;
             burnsAvailable = 2;
             UpdateDisplays();
 
+            // player can choose to burn / hold / or replace cards
         }
         private void DebugState()
         {
             print(
-                $"Match Initiated: " +
-                $"player deck has {p_Deck.CardsCurrent}/{p_Deck.CardsTotal}" +
-                $"opponent Deck has {o_Deck.CardsCurrent}/{o_Deck.CardsTotal}" +
-                $"p1 = {p1.Val}, p2 = {p2.Val}" +
+                $"Match Initiated: player deck has {p_Deck.CardsCurrent}/{p_Deck.CardsTotal} and {p_Deck.BurnDeckCurrent} burnt" +
+                                 $"opponent Deck has {o_Deck.CardsCurrent}/{o_Deck.CardsTotal} and {o_Deck.BurnDeckCurrent} burnt" +
+                $"p1 = {p1.Val}, p2 = {p2.Val}, ph = {ph.Val} " +
                 $"o1 = {o2.Val}, o2 = {o2.Val}"
                 );
         }
         private void DealToAll()
         {
+
+            DiscardPosition(TargetCardPos.P1);
             p1 = p_Deck.PullNextCard();
+            DiscardPosition(TargetCardPos.P2);
             p2 = p_Deck.PullNextCard();
+            DiscardPosition(TargetCardPos.O1);
             o1 = o_Deck.PullNextCard();
+            DiscardPosition(TargetCardPos.O2);
             o2 = o_Deck.PullNextCard();
             UpdateDisplays();
         }
-        public void BurnPosition(bool isLeftPos)
+        public void  BurnPosition(bool isLeftPos)
         {
             if (burnsAvailable <= 0)
             {
@@ -128,10 +168,10 @@ namespace BlackJackHero
                 dh.SetCardVal(TargetCardPos.P1, p2.Val);
             }
 
-            UpdateDisplays();
             burnsAvailable--;
+            UpdateDisplays();
         }
-        public void HoldPosition(bool isLeftPos)
+        public void  HoldPosition(bool isLeftPos)
         {
             if (holdsAvailable <= 0)
             {
@@ -140,7 +180,7 @@ namespace BlackJackHero
 
             if (isLeftPos)
             {
-                if (ph.Val.Equals(CardVal.NULL))
+                if (!ph.Val.Equals(CardVal.NULL))
                 {
                     DiscardPosition(TargetCardPos.PH);
                 }
@@ -154,7 +194,7 @@ namespace BlackJackHero
             }
             else
             {
-                if (ph.Val.Equals(CardVal.NULL))
+                if (!ph.Val.Equals(CardVal.NULL))
                 {
                     DiscardPosition(TargetCardPos.PH);
                 }
@@ -169,31 +209,73 @@ namespace BlackJackHero
             UpdateDisplays();
             holdsAvailable--;
         }
+        public void  PlayHoldCard(bool isleftButton)
+        {
+            if (holdHitsAvailable <= 0)
+            {
+                return ;
+            }
+
+            if (isleftButton)
+            {
+                if (!p1.Val.Equals(CardVal.NULL))
+                {
+                    DiscardPosition(TargetCardPos.P1);
+                }
+
+                p1 = ph;
+                dh.SetCardVal(TargetCardPos.P2, p1.Val);
+
+                DiscardPosition(TargetCardPos.PH);
+                dh.SetCardVal(TargetCardPos.PH, CardVal.NULL);
+            }
+            else
+            {
+                if (!p2.Val.Equals(CardVal.NULL))
+                {
+                    DiscardPosition(TargetCardPos.P2);
+                }
+
+                p2 = ph;
+                dh.SetCardVal(TargetCardPos.P2, p2.Val);
+
+                DiscardPosition(TargetCardPos.PH);
+                dh.SetCardVal(TargetCardPos.PH, CardVal.NULL);
+            }
+
+            holdHitsAvailable--;
+            UpdateDisplays();
+        }
         private void HitPosition(TargetCardPos target)
         {
             switch (target)
             {
                 case TargetCardPos.P1:
+                    p_Deck.AddToDiscardDeck(p1);
                     p1 = p_Deck.PullNextCard();
                     dh.SetCardVal(target, p1.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.P2:
+                    p_Deck.AddToDiscardDeck(p2);
                     p2 = p_Deck.PullNextCard();
                     dh.SetCardVal(target, p2.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.PH:
+                    p_Deck.AddToDiscardDeck(ph);
                     ph = p_Deck.PullNextCard();
                     dh.SetCardVal(target, ph.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O1:
+                    p_Deck.AddToDiscardDeck(o1);
                     o1 = o_Deck.PullNextCard();
                     dh.SetCardVal(target, o1.Val);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O2:
+                    p_Deck.AddToDiscardDeck(o2);
                     o2 = o_Deck.PullNextCard();
                     dh.SetCardVal(target, o2.Val);
                     UpdateDisplays();
@@ -206,27 +288,30 @@ namespace BlackJackHero
             {
                 case TargetCardPos.P1:
                     p_Deck.AddToDiscardDeck(p1);
-                    dh.SetCardVal(target);
+                    dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.P2:
+                    p_Deck.AddToDiscardDeck(p2);
                     p2 = p_Deck.PullNextCard();
-                    dh.SetCardVal(target);
+                    dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.PH:
-                    ph = p_Deck.PullNextCard();
-                    dh.SetCardVal(target);
+                    p_Deck.AddToDiscardDeck(ph);
+                    dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O1:
+                    p_Deck.AddToDiscardDeck(o1);
                     o1 = o_Deck.PullNextCard();
-                    dh.SetCardVal(target);
+                    dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
                 case TargetCardPos.O2:
+                    p_Deck.AddToDiscardDeck(o2);
                     o2 = o_Deck.PullNextCard();
-                    dh.SetCardVal(target);
+                    dh.ResetCardVal(target);
                     UpdateDisplays();
                     break;
             }
@@ -238,23 +323,41 @@ namespace BlackJackHero
             dh.SetCardVal(TargetCardPos.O1, o1.Val);
             dh.SetCardVal(TargetCardPos.O2, o2.Val);
 
-            if(!ph.Val.Equals(CardVal.NULL))
-                dh.SetCardVal(TargetCardPos.PH, ph.Val);
-
+            dh.SetCardVal(TargetCardPos.PH, ph.Val);
 
             dh.SetDisplayText(TargetDisplay.D_PayerSum, GetPlayerSum().ToString());
             dh.SetDisplayText(TargetDisplay.D_BurnCount, burnsAvailable.ToString());
-            dh.SetDisplayText(TargetDisplay.D_DeckCount, $"{p_Deck.CardsCurrent}/{p_Deck.CardsTotal}");
+            dh.SetDisplayText(TargetDisplay.D_DeckCount, $"{p_Deck.CardsCurrent}/{p_Deck.CardsCurrent + p_Deck.BurnDeckCurrent}");
             dh.SetDisplayText(TargetDisplay.D_OpponentSum, GetOpponentSum().ToString());
+
+            dh.SetProgressBarValue(true,  playerScore);
+            dh.SetProgressBarValue(false, opponentScore);
         }
-        private int GetPlayerSum()
+        private int  GetPlayerSum()
         {
             int sum = (int)p1.Val + (int)p2.Val;
             return sum;
         }
-        private int GetOpponentSum()
+        private int  GetOpponentSum()
         {
             return (int)o1.Val + (int)o2.Val;
         }
+        private bool CheckForWin(int score)
+        {
+            if (score >= matchScoreGoal)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private void HandleWin(bool isPlayerWin)
+        {
+            dh.EnablePopup(isPlayerWin, true);
+            isMatchRunning = false;
+        }
+        
     }
 }

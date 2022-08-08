@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace BlackJackHero.Assets.Code.Räkning.Mods
 {
-    public class NoMod : MonoBehaviour, CardMod
+    [CreateAssetMenu(menuName = "Custom Objects/CardMods")]
+    public class NoMod : CardMod
     {
         private string myName = "No Mod";
         public void DeckModAction()
